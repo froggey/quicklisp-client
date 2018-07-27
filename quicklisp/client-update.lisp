@@ -12,7 +12,8 @@
     (loop
       (incf suffix)
       (let* ((try (format nil "~A-~D" base suffix))
-             (dir (qmerge (make-pathname :directory
+             (dir (qmerge (make-pathname :defaults *quicklisp-home*
+                                         :directory
                                          (list :relative "retired" try)))))
         (unless (probe-directory dir)
           (return dir))))))
@@ -27,7 +28,8 @@
       to)))
 
 (defun client-update-scratch-directory (client-info)
-  (qmerge (make-pathname :directory
+  (qmerge (make-pathname :defaults *quicklisp-home*
+                         :directory
                          (list :relative
                                "tmp"
                                "client-update"

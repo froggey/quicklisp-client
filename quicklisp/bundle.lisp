@@ -305,7 +305,8 @@
   "Copy the local-projects directories to TO-DIRECTORY. Each one gets
   a distinct subdirectory."
   (loop for prefix from 0
-        for prefix-directory = (make-pathname :directory
+        for prefix-directory = (make-pathname :defaults *quicklisp-home*
+                                              :directory
                                               (list :relative
                                                     (format nil "~4,'0X" prefix)))
         for from-directory in local-projects-directories

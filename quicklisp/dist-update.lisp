@@ -103,7 +103,9 @@
 
 (defmethod update-in-place ((old-dist dist) (new-dist dist))
   (flet ((remove-installed (type)
-           (let ((wild (merge-pathnames (make-pathname :directory
+           (let ((wild (merge-pathnames (make-pathname :defaults
+                                                       *quicklisp-home*
+                                                       :directory
                                                        (list :relative
                                                              "installed"
                                                              type)

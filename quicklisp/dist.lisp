@@ -497,7 +497,8 @@
 (defun dist-name-pathname (name)
   "Return the pathname that would be used for an installed dist with
 the given NAME."
-  (qmerge (make-pathname :directory (list :relative "dists" name))))
+  (qmerge (make-pathname :directory (list :relative "dists" name)
+                         :defaults *quicklisp-home*)))
 
 (defmethod slot-unbound (class (dist dist) (slot (eql 'base-directory)))
   (declare (ignore class))
@@ -592,7 +593,8 @@ the given NAME."
 
 (defmethod install-metadata-file (object)
   (relative-to (dist object)
-               (make-pathname :directory
+               (make-pathname :defaults *quicklisp-home*
+                              :directory
                               (list :relative "installed"
                                     (metadata-name object))
                               :name (name object)
@@ -616,11 +618,12 @@ the given NAME."
 (defmethod preference-file ((object preference-mixin))
   (relative-to
    (dist object)
-   (make-pathname :directory (list :relative
+   (make-pathname :defaults *quicklisp-home*
+                  :directory (list :relative
                                    "preferences"
                                    (metadata-name object))
-                              :name (filesystem-name object)
-                              :type "txt")))
+                  :name (filesystem-name object)
+                  :type "txt")))
 
 (defmethod distinfo-subscription-url :around ((dist dist))
   (unless (subscription-inhibited-p dist)
@@ -733,10 +736,12 @@ the given NAME."
                :expected-size expected-size)))))
 
 (defmethod local-archive-file ((release release))
-  (relative-to (dist release)
-               (make-pathname :directory '(:relative "archives")
-                              :defaults (file-namestring
-                                         (path (url (archive-url release)))))))
+  (let ((path (path (url (archive-url release)))))
+    (relative-to (dist release)
+                 (make-pathname :directory '(:relative "archives")
+                                :name (pathname-name path)
+                                :type (pathname-type path)
+                                :defaults *quicklisp-home*))))
 
 (defmethod ensure-local-archive-file ((release release))
   (let ((pathname (local-archive-file release)))
@@ -759,7 +764,8 @@ the given NAME."
 (defmethod base-directory ((release release))
   (relative-to
    (dist release)
-   (make-pathname :directory (list :relative "software" (prefix release)))))
+   (make-pathname :directory (list :relative "software" (prefix release))
+                  :defaults *quicklisp-home*)))
 
 (defmethod installedp ((release release))
   (and (probe-file (install-metadata-file release))
@@ -769,7 +775,8 @@ the given NAME."
   (let ((archive (ensure-local-archive-file release))
         (tar (qmerge "tmp/release-install.tar"))
         (output (relative-to (dist release)
-                             (make-pathname :directory
+                             (make-pathname :defaults *quicklisp-home*
+                                            :directory
                                             (list :relative "software"))))
         (tracking (install-metadata-file release)))
     (ensure-directories-exist tar)
@@ -997,7 +1004,8 @@ the given NAME."
 
 (defmethod install-metadata-file ((system system))
   (relative-to (dist system)
-               (make-pathname :name (system-file-name system)
+               (make-pathname :defaults *quicklisp-home*
+                              :name (system-file-name system)
                               :type "txt"
                               :directory '(:relative "installed" "systems"))))
 

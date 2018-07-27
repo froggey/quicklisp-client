@@ -13,12 +13,33 @@
   (make-pathname :name nil :type nil
                  :defaults *load-truename*))
 
+(defun fix-up-wild-elements (path)
+  (make-pathname
+   :defaults path
+   :name (if (equal (pathname-name path) "*")
+             :wild
+             (pathname-name path))
+   :type (if (equal (pathname-type path) "*")
+             :wild
+             (pathname-type path))
+   :directory (substitute :wild "*"
+                          (substitute :wild-inferiors "**"
+                                      (pathname-directory path)
+                                      :test 'equal)
+                          :test 'equal)))
+
 (defun qmerge (pathname)
   "Return PATHNAME merged with the base Quicklisp directory."
-  (merge-pathnames pathname *quicklisp-home*))
+  (merge-pathnames (fix-up-wild-elements
+                    (uiop:parse-unix-namestring
+                     pathname
+                     :defaults *quicklisp-home*))
+                   *quicklisp-home*))
 
 (defun qenough (pathname)
-  (enough-namestring pathname *quicklisp-home*))
+  (uiop:unix-namestring
+   (parse-namestring (enough-namestring pathname *quicklisp-home*)
+                     nil *quicklisp-home*)))
 
 ;;; ASDF is a hard requirement of quicklisp. Make sure it's either
 ;;; already loaded or load it from quicklisp's bundled version.

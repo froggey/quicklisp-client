@@ -147,7 +147,10 @@ value it specifies as multiple values."
                 (payload-type (payload-type payload-code))
                 (tar-path (or (shiftf extended-path nil)
                               (full-path block)))
-                (full-path (merge-pathnames tar-path directory))
+                (full-path (merge-pathnames (uiop:parse-unix-namestring
+                                             tar-path
+                                             :defaults directory)
+                                            directory))
                 (payload-size (payload-size block))
                 (block-count (ceiling (payload-size block) +block-size+)))
          (case payload-type

@@ -14,7 +14,8 @@
          (name (first (last split)))
          (base (qmerge "config/")))
      (merge-pathnames
-      (make-pathname :name name
+      (make-pathname :defaults *quicklisp-home*
+                     :name name
                      :type "txt"
                      :directory (list* :relative directory-parts))
       base)))
